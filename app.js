@@ -57,6 +57,32 @@ app.get('/menu/:id',(req,res)=>{
     })
 })
 
+
+//filters
+app.get('/filter/:catId',(req,res)=>{
+    let sort={cost:1}
+    let catId=Number(req.params.catId)
+    let skip=0;
+    let limit=10000000000000;
+    let lcost=Number(req.query.lcost)
+    let hcost=Number(req.query.hcost)
+    let query={}
+    if(req.query.sort){
+        sort={cost:req.query.sort}
+    }
+    if(req.query.skip && req.query.limit){
+        skip=Number(req.query.skip);
+        limit=Number(req.query.limit);
+    }
+    if(lcost&hcost){
+        query={$and:[{cost:{$gt:lcost,$lt:hcost}}],"category_type.category_id":catId}
+}
+    db.collection('data').find(query).sort(sort).skip(skip).limit(limit).toArray((err,result)=>{
+    if(err) throw err;
+    res.send(result)
+})
+})
+
 //view orders(get)
 app.get('/vieworders',(req,res)=>{
     let email=req.query.email;
